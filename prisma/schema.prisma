@@ -51,7 +51,7 @@ model Session {
 
   userId String
 
-  refreshTokenHash String
+  refreshTokenHash String @unique
 
   userAgent String?
 
