@@ -12,10 +12,162 @@ datasource db {
   provider = "postgresql"
 }
 
+//USER
+model User {
 
-model Post {
-  id Int @id @default(autoincrement())
-  title String
-  content String
+  id String @id @default(uuid())
+
+  name String
+
+  email String @unique
+
+  passwordHash String
+
+  role Role @default(USER)
+
+  emailVerifiedAt DateTime?
+
+  loginAttempts Int @default(0)
+
+  lockUntil DateTime?
+
   createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+
+  auditLogs AuditLog[]
+
+  passwordResets PasswordReset[]
+
+  emailVerifications EmailVerification[]
 }
+
+//SESSION
+model Session {
+
+  id String @id @default(uuid())
+
+  userId String
+
+  refreshTokenHash String
+
+  userAgent String?
+
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  lastUsedAt DateTime @default(now())
+
+  expiresAt DateTime
+
+  revoked Boolean @default(false)
+
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+
+  @@index([expiresAt])
+
+  @@index([revoked])
+}
+
+//ENUM
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AuditAction {
+  REGISTER
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  LOGOUT
+  LOGOUT_ALL
+  TOKEN_REFRESH
+  SESSION_REVOKED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  EMAIL_VERIFIED
+  ACCOUNT_LOCKED
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+//AUDITLOG
+model AuditLog {
+
+  id String @id @default(uuid())
+
+  userId String?
+
+  action AuditAction
+
+  ipAddress String?
+
+  userAgent String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId],references: [id],onDelete: SetNull)
+
+  @@index([userId])
+
+  @@index([action])
+
+  @@index([createdAt])
+}
+
+//PASSWORD RESET
+model PasswordReset {
+
+  id String @id @default(uuid())
+
+  userId String
+
+  tokenHash String
+
+  expiresAt DateTime
+
+  usedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  @@index([userId])
+
+  @@index([expiresAt])
+}
+
+//EMAIL VERIFICATION
+model EmailVerification {
+
+  id String @id @default(uuid())
+
+  userId String
+
+  tokenHash String
+
+  expiresAt DateTime
+
+  verifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  @@index([userId])
+
+  @@index([expiresAt])
+}
+
