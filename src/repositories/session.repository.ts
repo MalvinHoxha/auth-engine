@@ -81,5 +81,20 @@ export const sessionRepository = {
       },
     });
   },
+
+  async revokeSession(
+    sessionId: string
+  ) {
+    return prisma.session.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        revoked: true,
+        revokedAt: new Date(),
+      },
+    });
+  },
 };
+
 
