@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import "dotenv/config";
 
 const ACCESS_TOKEN_SECRET =
@@ -33,6 +34,7 @@ export function generateRefreshToken(
     REFRESH_TOKEN_SECRET,
     {
       expiresIn: "7d",
+      jwtid: crypto.randomUUID(),
     }
   );
 }

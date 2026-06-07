@@ -1,7 +1,8 @@
 import { userRepository } from "../../repositories/user.repository";
 import { sessionRepository } from "../../repositories/session.repository";
-
+import { auditRepository } from "../../repositories/audit.repository";
 import { verifyPassword } from "../../utils/password";
+import { AuditAction } from "../../../generated/prisma/client";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -79,9 +80,24 @@ const refreshToken =
         }),
         });
 
+        await auditRepository.create({
+          userId: user.id,
+          action: AuditAction.LOGIN_SUCCESS,
+
+          ...(userAgent && {
+            userAgent,
+          }),
+
+          ...(ipAddress && {
+            ipAddress,
+          }),
+        });
+
         return {
             accessToken,
             refreshToken,
             user,
     };
+
+ 
 }

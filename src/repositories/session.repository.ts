@@ -19,16 +19,6 @@ export const sessionRepository = {
     });
   },
 
-  async findByRefreshTokenHash(
-    refreshTokenHash: string
-  ) {
-    return prisma.session.findFirst({
-      where: {
-        refreshTokenHash,
-      },
-    });
-  },
-
   async updateLastUsed(id: string) {
     return prisma.session.update({
       where: { id },
@@ -63,6 +53,8 @@ export const sessionRepository = {
     });
   },
 
+
+
   async findActiveUserSessions(
     userId: string
   ) {
@@ -79,4 +71,15 @@ export const sessionRepository = {
       },
     });
   },
+
+  async findByRefreshTokenHash(
+    refreshTokenHash: string
+  ) {
+    return prisma.session.findUnique({
+      where: {
+        refreshTokenHash,
+      },
+    });
+  },
 };
+
